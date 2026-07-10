@@ -23,7 +23,7 @@ import {
   Lock,
   LogOut
 } from 'lucide-react';
-import { Tenant, Role, EntryPoint, Pipeline, Deal, Workflow as WorkflowType, IntegrationProvider, Contact, Appointment, InboundLog, StageAction, WorkflowNode } from './types';
+import { Tenant, Role, EntryPoint, Pipeline, Deal, Workflow as WorkflowType, IntegrationProvider, Contact, Appointment, InboundLog, StageAction, WorkflowNode, User } from './types';
 
 // Views
 import DashboardView from './components/DashboardView';
@@ -90,15 +90,54 @@ export default function App() {
   const [currentTenantId, setCurrentTenantId] = useState<string>('tenant-1');
   const currentTenant = tenants.find((t) => t.id === currentTenantId) || tenants[0];
 
-  const handleAddTenant = (name: string, subdomain: string) => {
+  // Users State
+  const [users, setUsers] = useState<User[]>([
+    { id: 'usr-1', name: 'Carlos Alberto Souza', email: 'admin@promadeira.com.br', role: 'admin', tenantId: 'tenant-1' },
+    { id: 'usr-2', name: 'Juliana Mendes', email: 'gerente@promadeira.com.br', role: 'manager', tenantId: 'tenant-1' },
+    { id: 'usr-3', name: 'Marcos Atendente', email: 'atendente@promadeira.com.br', role: 'agent', tenantId: 'tenant-1' },
+    { id: 'usr-4', name: 'Elena Rostova', email: 'admin@smartdatabi.com.br', role: 'admin', tenantId: 'tenant-2' },
+  ]);
+
+  const handleAddTenant = (name: string, subdomain: string, adminName?: string, adminEmail?: string) => {
+    const newTenantId = `tenant-${Date.now()}`;
     setTenants((prev) => [
       ...prev,
       {
-        id: `tenant-${Date.now()}`,
+        id: newTenantId,
         name,
         subdomain,
       },
     ]);
+
+    if (adminName && adminEmail) {
+      setUsers((prev) => [
+        ...prev,
+        {
+          id: `usr-${Date.now()}`,
+          name: adminName,
+          email: adminEmail,
+          role: 'admin',
+          tenantId: newTenantId,
+        },
+      ]);
+    }
+  };
+
+  const handleAddUser = (name: string, email: string, role: Role) => {
+    setUsers((prev) => [
+      ...prev,
+      {
+        id: `usr-${Date.now()}`,
+        name,
+        email,
+        role,
+        tenantId: currentTenantId,
+      },
+    ]);
+  };
+
+  const handleDeleteUser = (id: string) => {
+    setUsers((prev) => prev.filter((u) => u.id !== id));
   };
 
   // User Roles Simulation States
@@ -898,6 +937,7 @@ export default function App() {
               tenants={tenants}
               onAddTenant={handleAddTenant}
               currentRole={currentRole}
+              users={users}
             />
           )}
 
@@ -919,6 +959,10 @@ export default function App() {
               currentRole={currentRole}
               onChangeRole={setCurrentRole}
               subdomain={currentTenant.subdomain}
+              users={users}
+              onAddUser={handleAddUser}
+              onDeleteUser={handleDeleteUser}
+              currentTenantId={currentTenantId}
             />
           )}
         </main>

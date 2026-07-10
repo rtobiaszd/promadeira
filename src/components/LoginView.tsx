@@ -17,6 +17,7 @@ export default function LoginView({ tenants, onLoginSuccess, userEmailMetadata =
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
+  const [showPresets, setShowPresets] = useState<boolean>(false);
 
   // Predefined users for quick testing/demo
   const loginPresets = [
@@ -119,62 +120,58 @@ export default function LoginView({ tenants, onLoginSuccess, userEmailMetadata =
           </div>
         </div>
 
-        {/* Dynamic Architectural Sandbox Mockup */}
+        {/* Business Value Proposal Column */}
         <div className="my-12 relative z-10 space-y-6">
           <div className="space-y-2">
             <h2 className="text-2xl md:text-3xl font-black text-white tracking-tight leading-none">
               A Nova Era da Comunicação Multi-Tenant.
             </h2>
             <p className="text-slate-400 text-sm leading-relaxed max-w-md">
-              Uma única infraestrutura inteligente, isolada por políticas de banco de dados robustas, conectando canais omnichannel e inteligência artificial de ponta.
+              Uma única plataforma para unificar suas conversas, automatizar fluxos de atendimento e gerenciar seus clientes finais de forma integrada.
             </p>
           </div>
 
-          {/* Interactive URL Simulator Card */}
-          <div className="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-850 pb-3">
-              <div className="flex items-center gap-2">
-                <Globe className="text-amber-500 w-4 h-4" />
-                <span className="text-xs font-mono font-extrabold text-slate-400 uppercase tracking-wider">Gateway do Inquilino</span>
+          {/* Business Features List */}
+          <div className="space-y-4 pt-4">
+            <div className="flex items-start gap-3 bg-slate-950/40 p-4 border border-slate-850 rounded-2xl">
+              <div className="p-2 rounded-xl bg-amber-500/10 text-amber-500 border border-amber-500/20">
+                <Globe className="w-4 h-4" />
               </div>
-              <span className="flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span className="text-[9px] font-mono font-bold text-emerald-400">DNS RESOLVIDO</span>
-              </span>
+              <div className="space-y-0.5">
+                <h4 className="text-xs font-bold text-white uppercase tracking-wide">Omnicanalidade Unificada</h4>
+                <p className="text-[11px] text-slate-400">Integre canais de WhatsApp, E-mail e Telegram sob o mesmo teto operacional.</p>
+              </div>
             </div>
 
-            <div className="font-mono text-xs text-slate-300 bg-slate-900 p-3 rounded-xl border border-slate-850 truncate select-all">
-              <span className="text-slate-500">https://</span>
-              <span className="text-amber-400 font-bold">{activeSubdomain}</span>
-              <span className="text-slate-300">.omnilead.com.br/painel</span>
+            <div className="flex items-start gap-3 bg-slate-950/40 p-4 border border-slate-850 rounded-2xl">
+              <div className="p-2 rounded-xl bg-violet-500/10 text-violet-400 border border-violet-500/20">
+                <Shield className="w-4 h-4" />
+              </div>
+              <div className="space-y-0.5">
+                <h4 className="text-xs font-bold text-white uppercase tracking-wide">CRM e Funis Kanban</h4>
+                <p className="text-[11px] text-slate-400">Organize seus clientes, acompanhe vendas e automatize ações em cada etapa do funil.</p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 text-[10px] text-slate-400 font-mono">
-              <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-850">
-                <span className="text-slate-500 block">ORGANIZAÇÃO</span>
-                <span className="text-white font-bold truncate block mt-0.5">
-                  {role === 'master_admin' ? 'Global SaaS' : currentTenantObj.name}
-                </span>
+            <div className="flex items-start gap-3 bg-slate-950/40 p-4 border border-slate-850 rounded-2xl">
+              <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <Sparkles className="w-4 h-4" />
               </div>
-              <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-850">
-                <span className="text-slate-500 block">CONEXÃO</span>
-                <span className="text-emerald-400 font-bold block mt-0.5">POSTGRESQL</span>
-              </div>
-              <div className="bg-slate-900 p-2.5 rounded-lg border border-slate-850">
-                <span className="text-slate-500 block">SESSÃO</span>
-                <span className="text-amber-500 font-bold block mt-0.5 uppercase">{role}</span>
+              <div className="space-y-0.5">
+                <h4 className="text-xs font-bold text-white uppercase tracking-wide">Assistentes de IA &amp; Workflows</h4>
+                <p className="text-[11px] text-slate-400">Simplifique o atendimento com assistentes dinâmicos baseados no Google Gemini.</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Footer info */}
+        {/* Footer info - business level, clean and minimal */}
         <div className="relative z-10 text-[11px] text-slate-500 font-mono flex flex-wrap gap-x-4 gap-y-1">
-          <span>AMBAR ORCHESTRATOR v2.4</span>
+          <span>Omnilead © 2026</span>
           <span>•</span>
-          <span>SSL 256-BIT ENCRYPTION</span>
+          <span>Plataforma SaaS Corporativa</span>
           <span>•</span>
-          <span>CLOUD RUN SECURE AGENT</span>
+          <span>Ambiente Seguro</span>
         </div>
       </div>
 
@@ -186,50 +183,54 @@ export default function LoginView({ tenants, onLoginSuccess, userEmailMetadata =
           <div>
             <h2 className="text-3xl font-black text-white tracking-tight uppercase">Acessar Painel</h2>
             <p className="text-sm text-slate-400 mt-1">
-              Escolha um perfil rápido de testes abaixo ou preencha as credenciais.
+              Informe suas credenciais corporativas abaixo para acessar o painel integrado do OmniLead.
             </p>
           </div>
 
-          {/* Quick Access Presets Grid */}
-          <div className="space-y-3">
-            <span className="text-[10px] uppercase font-mono font-extrabold text-amber-500 tracking-wider block">
-              Acesso Rápido de Demonstração
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {loginPresets.map((preset) => {
-                const Icon = preset.icon;
-                const isSelected = email === preset.email;
-                return (
-                  <button
-                    key={preset.title}
-                    type="button"
-                    onClick={() => handleApplyPreset(preset)}
-                    className={`text-left p-3 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col justify-between ${
-                      isSelected
-                        ? 'bg-slate-900 border-amber-500/60 shadow-lg shadow-amber-500/5 ring-1 ring-amber-500/30'
-                        : 'bg-slate-900/40 border-slate-850 hover:bg-slate-900 hover:border-slate-800'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between w-full mb-1">
-                      <span className="font-bold text-xs text-white block">{preset.title}</span>
-                      <span className={`text-[8px] font-bold uppercase font-mono px-1.5 py-0.5 rounded border ${preset.badgeColor}`}>
-                        {preset.role.replace('_', ' ')}
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-slate-500 truncate block w-full">
-                      {preset.email}
-                    </span>
-                  </button>
-                );
-              })}
+          {/* Collapsible simulation presets block */}
+          <div className="bg-slate-900/30 border border-slate-900 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] uppercase font-mono font-extrabold text-amber-500 tracking-wider block">
+                Ambiente de Simulação e Demonstração
+              </span>
+              <button
+                type="button"
+                onClick={() => setShowPresets(!showPresets)}
+                className="text-[10px] font-bold text-slate-400 hover:text-white underline cursor-pointer focus:outline-none"
+              >
+                {showPresets ? 'Ocultar Perfis' : 'Visualizar Perfis de Teste'}
+              </button>
             </div>
-          </div>
 
-          {/* Separation line */}
-          <div className="relative flex py-1 items-center">
-            <div className="flex-grow border-t border-slate-900"></div>
-            <span className="flex-shrink mx-3 text-[10px] font-mono text-slate-500 uppercase">Ou digite manualmente</span>
-            <div className="flex-grow border-t border-slate-900"></div>
+            {showPresets && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1 animate-fadeIn">
+                {loginPresets.map((preset) => {
+                  const isSelected = email === preset.email;
+                  return (
+                    <button
+                      key={preset.title}
+                      type="button"
+                      onClick={() => handleApplyPreset(preset)}
+                      className={`text-left p-2.5 rounded-xl border transition-all duration-200 cursor-pointer flex flex-col justify-between ${
+                        isSelected
+                          ? 'bg-slate-900 border-amber-500/60 shadow-lg shadow-amber-500/5 ring-1 ring-amber-500/30'
+                          : 'bg-slate-900/40 border-slate-850 hover:bg-slate-900 hover:border-slate-800'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between w-full mb-1">
+                        <span className="font-bold text-xs text-white block">{preset.title}</span>
+                        <span className={`text-[8px] font-bold uppercase font-mono px-1.5 py-0.5 rounded border ${preset.badgeColor}`}>
+                          {preset.role.split('_')[0]}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-slate-500 truncate block w-full font-mono">
+                        {preset.email}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Login Form */}
