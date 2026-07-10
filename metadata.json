@@ -1,0 +1,6 @@
+{
+  "name": "Omnichannel SaaS & CRM Platform",
+  "description": "A production-ready blueprint and interactive prototype for a multi-tenant omnichannel communication, chatbot workflow, and CRM automation SaaS platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
