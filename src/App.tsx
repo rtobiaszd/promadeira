@@ -35,6 +35,7 @@ import ContactsView from './components/ContactsView';
 import LogIngestionView from './components/LogIngestionView';
 import SaaSBlueprintDoc from './components/SaaSBlueprintDoc';
 import MasterCEOView from './components/MasterCEOView';
+import LoginView from './components/LoginView';
 
 // New Views from Legacy Sidebar Navigation
 import RequisicaoCompraView from './components/RequisicaoCompraView';
@@ -102,6 +103,8 @@ export default function App() {
   // User Roles Simulation States
   const roles: Role[] = ['master_admin', 'admin', 'manager', 'agent'];
   const [currentRole, setCurrentRole] = useState<Role>('admin');
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [authenticatedEmail, setAuthenticatedEmail] = useState<string>('admin@promadeira.com.br');
 
   // Unified channels EntryPoints State
   const [entryPoints, setEntryPoints] = useState<EntryPoint[]>([
@@ -469,6 +472,21 @@ export default function App() {
 
   const hasSearchQuery = searchQuery.trim() !== '';
 
+  if (!isAuthenticated) {
+    return (
+      <LoginView
+        tenants={tenants}
+        onLoginSuccess={(tenantId, role, email) => {
+          setCurrentTenantId(tenantId);
+          setCurrentRole(role);
+          setAuthenticatedEmail(email);
+          setIsAuthenticated(true);
+        }}
+        userEmailMetadata="sb4fun88@gmail.com"
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col">
       {/* Top command & global header */}
@@ -659,6 +677,24 @@ export default function App() {
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Active User & Logout */}
+          <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
+            <div className="hidden lg:flex flex-col text-right">
+              <span className="text-[11px] font-bold text-slate-800 max-w-[150px] truncate" title={authenticatedEmail}>{authenticatedEmail}</span>
+              <span className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-wider">Sessão Ativa</span>
+            </div>
+            <button
+              onClick={() => {
+                setIsAuthenticated(false);
+                setSearchQuery('');
+              }}
+              title="Sair do Sistema (Bloquear)"
+              className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer flex items-center justify-center bg-slate-50 border border-slate-100"
+            >
+              <Lock className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </header>
