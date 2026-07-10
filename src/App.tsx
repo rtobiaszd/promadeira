@@ -34,7 +34,6 @@ import IntegrationManager from './components/IntegrationManager';
 import CalendarScheduler from './components/CalendarScheduler';
 import ContactsView from './components/ContactsView';
 import LogIngestionView from './components/LogIngestionView';
-import SaaSBlueprintDoc from './components/SaaSBlueprintDoc';
 import MasterCEOView from './components/MasterCEOView';
 import LoginView from './components/LoginView';
 
@@ -440,6 +439,56 @@ export default function App() {
         }
         return p;
       })
+    );
+  };
+
+  const handleAddPipeline = (name: string, stageNames: string[]) => {
+    const pipelineId = `pipe-${Date.now()}`;
+    const newPipeline: Pipeline = {
+      id: pipelineId,
+      name,
+      stages: stageNames.map((stageName, index) => ({
+        id: `stage-${Date.now()}-${index}`,
+        name: stageName,
+        order: index + 1,
+        automation: {
+          onEnterActions: [],
+          conditions: []
+        }
+      }))
+    };
+    setPipelines(prev => [...prev, newPipeline]);
+  };
+
+  const handleAddDeal = (title: string, contactName: string, value: number, pipelineId: string, stageId: string) => {
+    const newDeal: Deal = {
+      id: `deal-${Date.now()}`,
+      title,
+      contactName,
+      value,
+      pipelineId,
+      stageId,
+      createdAt: new Date().toISOString().split('T')[0],
+      updatedAt: new Date().toISOString().split('T')[0],
+      metadata: {}
+    };
+    setDeals(prev => [...prev, newDeal]);
+  };
+
+  const handleAddLog = (source: string, payload: string) => {
+    const newLog: InboundLog = {
+      id: `log-${Date.now()}`,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      source,
+      payload,
+      workflowStatus: 'none',
+    };
+    setLogs(prev => [newLog, ...prev]);
+  };
+
+  const handleUpdateLogStatus = (logId: string, status: 'success' | 'none') => {
+    setLogs(prev =>
+      prev.map(l => l.id === logId ? { ...l, workflowStatus: status } : l)
     );
   };
 
@@ -874,9 +923,6 @@ export default function App() {
                 <button onClick={() => setCurrentView('logs')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'logs' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
                   <span className="flex items-center gap-2.5"><Terminal className="w-4 h-4 shrink-0" />Logs Webhooks</span>
                 </button>
-                <button onClick={() => setCurrentView('blueprint')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'blueprint' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                  <span className="flex items-center gap-2.5"><BookOpen className="w-4 h-4 shrink-0" />Manual Arquitetura</span>
-                </button>
               </div>
             )}
           </div>
@@ -916,6 +962,8 @@ export default function App() {
               deals={deals}
               onMoveDeal={handleMoveDeal}
               onUpdateStageAutomation={handleUpdateStageAutomation}
+              onAddPipeline={handleAddPipeline}
+              onAddDeal={handleAddDeal}
             />
           )}
           {currentView === 'workflows' && (
@@ -930,8 +978,13 @@ export default function App() {
           )}
           {currentView === 'calendar' && <CalendarScheduler appointments={appointments} contacts={contacts} />}
           {currentView === 'contacts' && <ContactsView contacts={contacts} onAddContact={handleAddContact} />}
-          {currentView === 'logs' && <LogIngestionView logs={logs} onTriggerLogWorkflow={() => {}} />}
-          {currentView === 'blueprint' && <SaaSBlueprintDoc />}
+          {currentView === 'logs' && (
+            <LogIngestionView
+              logs={logs}
+              onAddLog={handleAddLog}
+              onUpdateLogStatus={handleUpdateLogStatus}
+            />
+          )}
           {currentView === 'master_ceo' && (
             <MasterCEOView
               tenants={tenants}

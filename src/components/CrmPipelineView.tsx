@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Columns, Settings, Trash2, Zap, Play } from 'lucide-react';
+import { Columns, Settings, Trash2, Zap, Play, Plus } from 'lucide-react';
 import { Pipeline, Stage, Deal, StageAction } from '../types';
 
 interface CrmPipelineViewProps {
@@ -7,12 +7,32 @@ interface CrmPipelineViewProps {
   deals: Deal[];
   onMoveDeal: (dealId: string, targetStageId: string) => void;
   onUpdateStageAutomation: (pipelineId: string, stageId: string, actions: StageAction[]) => void;
+  onAddPipeline: (name: string, stageNames: string[]) => void;
+  onAddDeal: (title: string, contactName: string, value: number, pipelineId: string, stageId: string) => void;
 }
 
-export default function CrmPipelineView({ pipelines, deals, onMoveDeal, onUpdateStageAutomation }: CrmPipelineViewProps) {
+export default function CrmPipelineView({
+  pipelines,
+  deals,
+  onMoveDeal,
+  onUpdateStageAutomation,
+  onAddPipeline,
+  onAddDeal,
+}: CrmPipelineViewProps) {
   const [selectedPipelineId, setSelectedPipelineId] = useState<string>(pipelines[0]?.id || '');
   const [activeStageSettingsId, setActiveStageSettingsId] = useState<string | null>(null);
   const [automationLogs, setAutomationLogs] = useState<{ id: string; msg: string; type: string }[]>([]);
+
+  // Modals state for Pipeline and Deal creation
+  const [showAddPipelineModal, setShowAddPipelineModal] = useState(false);
+  const [newPipelineName, setNewPipelineName] = useState('');
+  const [newPipelineStages, setNewPipelineStages] = useState('Novo Lead, Contato, Proposta, Fechado');
+
+  const [showAddDealModal, setShowAddDealModal] = useState(false);
+  const [newDealTitle, setNewDealTitle] = useState('');
+  const [newDealContact, setNewDealContact] = useState('');
+  const [newDealValue, setNewDealValue] = useState<number>(0);
+  const [newDealStageId, setNewDealStageId] = useState('');
 
   const activePipeline = pipelines.find((p) => p.id === selectedPipelineId) || pipelines[0];
 
@@ -86,10 +106,31 @@ export default function CrmPipelineView({ pipelines, deals, onMoveDeal, onUpdate
     setEditingActions([...editingActions, newAct]);
   };
 
+  const handleCreatePipelineSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPipelineName.trim()) return;
+    const stagesArr = newPipelineStages.split(',').map(s => s.trim()).filter(Boolean);
+    if (stagesArr.length === 0) return;
+    onAddPipeline(newPipelineName, stagesArr);
+    setNewPipelineName('');
+    setNewPipelineStages('Novo Lead, Contato, Proposta, Fechado');
+    setShowAddPipelineModal(false);
+  };
+
+  const handleCreateDealSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDealTitle.trim() || !newDealContact.trim() || !newDealStageId) return;
+    onAddDeal(newDealTitle, newDealContact, Number(newDealValue), selectedPipelineId, newDealStageId);
+    setNewDealTitle('');
+    setNewDealContact('');
+    setNewDealValue(0);
+    setShowAddDealModal(false);
+  };
+
   return (
     <div className="space-y-6">
       {/* Pipeline Toolbar */}
-      <div className="bg-white border border-slate-200 p-5 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xs">
+      <div className="bg-white border border-slate-200 p-5 rounded-2xl flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4 shadow-xs">
         <div className="flex items-center gap-3">
           <div className="p-2.5 rounded-xl bg-amber-50 text-amber-600">
             <Columns className="w-5 h-5" />
@@ -99,20 +140,41 @@ export default function CrmPipelineView({ pipelines, deals, onMoveDeal, onUpdate
             <p className="text-slate-400 text-xs mt-0.5">Arraste os cards para alterar etapas e disparar automações baseadas em eventos.</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          {pipelines.map((p) => (
-            <button
-              key={p.id}
-              onClick={() => setSelectedPipelineId(p.id)}
-              className={`px-4 py-2 text-xs font-bold rounded-xl border transition cursor-pointer ${
-                selectedPipelineId === p.id
-                  ? 'bg-amber-600 text-white border-amber-600 shadow-sm'
-                  : 'bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-600'
-              }`}
-            >
-              {p.name}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-3 w-full xl:w-auto">
+          <div className="flex flex-wrap gap-1.5 bg-slate-100 p-1 rounded-xl">
+            {pipelines.map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setSelectedPipelineId(p.id)}
+                className={`px-3 py-1.5 text-xs font-bold rounded-lg transition cursor-pointer ${
+                  selectedPipelineId === p.id
+                    ? 'bg-white text-slate-800 shadow-xs'
+                    : 'text-slate-500 hover:text-slate-800'
+                }`}
+              >
+                {p.name}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={() => setShowAddPipelineModal(true)}
+            className="px-3 py-1.5 bg-slate-800 text-white hover:bg-slate-900 font-bold rounded-xl text-xs transition cursor-pointer flex items-center gap-1 shrink-0 shadow-xs"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Novo Funil
+          </button>
+
+          <button
+            onClick={() => {
+              setNewDealStageId(activePipeline?.stages[0]?.id || '');
+              setShowAddDealModal(true);
+            }}
+            className="px-3 py-1.5 bg-amber-600 text-white hover:bg-amber-700 font-bold rounded-xl text-xs transition cursor-pointer flex items-center gap-1 shrink-0 shadow-xs"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Novo Card
+          </button>
         </div>
       </div>
 
@@ -322,6 +384,149 @@ export default function CrmPipelineView({ pipelines, deals, onMoveDeal, onUpdate
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Add Pipeline Modal */}
+      {showAddPipelineModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <form onSubmit={handleCreatePipelineSubmit} className="bg-white border border-slate-200 p-6 rounded-2xl max-w-md w-full space-y-5 shadow-xl">
+            <div>
+              <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">
+                Criar Novo Funil de Vendas (Pipeline)
+              </h3>
+              <p className="text-slate-500 text-xs mt-0.5">Defina uma nova trilha com etapas customizadas para organizar seus contatos e leads.</p>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="text-[10px] text-slate-400 uppercase font-mono block mb-1 font-bold">Nome do Funil</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Funil de Vendas Corporativo"
+                  value={newPipelineName}
+                  onChange={(e) => setNewPipelineName(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-400 uppercase font-mono block mb-1 font-bold">Etapas (Separadas por vírgula)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Novo Lead, Contato, Proposta, Negociação, Fechado"
+                  value={newPipelineStages}
+                  onChange={(e) => setNewPipelineStages(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                />
+                <p className="text-[10px] text-slate-400 italic mt-1">Crie as etapas em ordem de progresso separando-as por vírgula.</p>
+              </div>
+            </div>
+
+            <div className="flex gap-2 justify-end pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setShowAddPipelineModal(false)}
+                className="px-4 py-2 text-xs text-slate-500 font-bold hover:text-slate-800 cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="bg-slate-800 hover:bg-slate-900 text-white px-5 py-2 text-xs font-bold rounded-xl cursor-pointer shadow-sm"
+              >
+                Criar Funil
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Add Deal Modal */}
+      {showAddDealModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <form onSubmit={handleCreateDealSubmit} className="bg-white border border-slate-200 p-6 rounded-2xl max-w-md w-full space-y-5 shadow-xl">
+            <div>
+              <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">
+                Adicionar Novo Card / Lead (CRM)
+              </h3>
+              <p className="text-slate-500 text-xs mt-0.5">Cadastre uma nova oportunidade comercial e defina seu valor estimado.</p>
+            </div>
+
+            <div className="space-y-4 text-xs">
+              <div>
+                <label className="text-[10px] text-slate-400 uppercase font-mono block mb-1 font-bold">Título do Negócio / Card</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Lote Eucalipto 20m³"
+                  value={newDealTitle}
+                  onChange={(e) => setNewDealTitle(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                />
+              </div>
+
+              <div>
+                <label className="text-[10px] text-slate-400 uppercase font-mono block mb-1 font-bold">Nome do Cliente (Contato)</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Ricardo Mendes"
+                  value={newDealContact}
+                  onChange={(e) => setNewDealContact(e.target.value)}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500/20"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-[10px] text-slate-400 uppercase font-mono block mb-1 font-bold">Valor (R$)</label>
+                  <input
+                    type="number"
+                    required
+                    min="0"
+                    placeholder="e.g. 8500"
+                    value={newDealValue}
+                    onChange={(e) => setNewDealValue(Number(e.target.value))}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] text-slate-400 uppercase font-mono block mb-1 font-bold">Etapa Inicial</label>
+                  <select
+                    value={newDealStageId}
+                    onChange={(e) => setNewDealStageId(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500/20 font-bold"
+                  >
+                    {activePipeline?.stages.map((stg) => (
+                      <option key={stg.id} value={stg.id}>
+                        {stg.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-2 justify-end pt-4 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setShowAddDealModal(false)}
+                className="px-4 py-2 text-xs text-slate-500 font-bold hover:text-slate-800 cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 text-xs font-bold rounded-xl cursor-pointer shadow-sm"
+              >
+                Adicionar Card
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </div>

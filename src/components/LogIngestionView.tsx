@@ -4,10 +4,11 @@ import { InboundLog } from '../types';
 
 interface LogIngestionViewProps {
   logs: InboundLog[];
-  onTriggerLogWorkflow: (logId: string) => void;
+  onAddLog: (source: string, payload: string) => void;
+  onUpdateLogStatus: (logId: string, status: 'success' | 'none') => void;
 }
 
-export default function LogIngestionView({ logs, onTriggerLogWorkflow }: LogIngestionViewProps) {
+export default function LogIngestionView({ logs, onAddLog, onUpdateLogStatus }: LogIngestionViewProps) {
   const [selectedLogId, setSelectedLogId] = useState<string>(logs[0]?.id || '');
   const [customPayload, setCustomPayload] = useState<string>(
     JSON.stringify(
@@ -22,7 +23,6 @@ export default function LogIngestionView({ logs, onTriggerLogWorkflow }: LogInge
     )
   );
   const [customSource, setCustomSource] = useState<string>('Monitoramento Alerta Servidor');
-  const [simulatedLogs, setSimulatedLogs] = useState<InboundLog[]>(logs);
   const [activeLogTrace, setActiveLogTrace] = useState<string[]>([]);
   const [isTracerRunning, setIsTracerRunning] = useState(false);
 
@@ -31,16 +31,12 @@ export default function LogIngestionView({ logs, onTriggerLogWorkflow }: LogInge
       // Validate JSON
       JSON.parse(customPayload);
 
-      const newLog: InboundLog = {
-        id: `log-${Date.now()}`,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        source: customSource,
-        payload: customPayload,
-        workflowStatus: 'none',
-      };
+      onAddLog(customSource, customPayload);
 
-      setSimulatedLogs([newLog, ...simulatedLogs]);
-      setSelectedLogId(newLog.id);
+      // Select newly added log
+      const newId = `log-${Date.now()}`;
+      // Note: setting selected log id can use the newly-constructed-to-be id or let it auto-select
+      setSelectedLogId(newId);
 
       setActiveLogTrace([
         '[INFORMAÇÃO] Endpoint de Ingestão recebeu requisição POST /api/events',
@@ -75,15 +71,13 @@ export default function LogIngestionView({ logs, onTriggerLogWorkflow }: LogInge
         ]);
         setIsTracerRunning(false);
 
-        // Update log list status
-        setSimulatedLogs((prev) =>
-          prev.map((l) => (l.id === log.id ? { ...l, workflowStatus: 'success' } : l))
-        );
+        // Update log status in parent state
+        onUpdateLogStatus(log.id, 'success');
       }, 1000);
     }, 1000);
   };
 
-  const selectedLog = simulatedLogs.find((l) => l.id === selectedLogId) || simulatedLogs[0];
+  const selectedLog = logs.find((l) => l.id === selectedLogId) || logs[0];
 
   return (
     <div className="space-y-6">
