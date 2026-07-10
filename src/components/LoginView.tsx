@@ -330,37 +330,6 @@ export default function LoginView({ tenants, onLoginSuccess, userEmailMetadata =
               </div>
             </div>
 
-            {/* Role Switcher Selector inside login form to display complete transparency of simulation */}
-            <div className="space-y-1.5 bg-slate-900/30 border border-slate-900 p-3 rounded-xl">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] uppercase font-mono font-bold text-slate-500">Nível Simulado:</span>
-                <span className="text-xs font-bold text-slate-300 uppercase font-mono">{role.replace('_', ' ')}</span>
-              </div>
-              <div className="flex gap-1.5 mt-2">
-                {(['master_admin', 'admin', 'manager', 'agent'] as Role[]).map((r) => (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => {
-                      setRole(r);
-                      if (r === 'master_admin') {
-                        setEmail(userEmailMetadata);
-                      } else if (email === userEmailMetadata) {
-                        setEmail('admin@promadeira.com.br');
-                      }
-                    }}
-                    className={`flex-1 py-1 text-[9px] font-mono font-bold uppercase rounded border transition cursor-pointer text-center ${
-                      role === r
-                        ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
-                        : 'bg-slate-900/20 text-slate-500 border-transparent hover:border-slate-850 hover:text-slate-400'
-                    }`}
-                  >
-                    {r.split('_')[0]}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Submit Button */}
             <button
               type="submit"

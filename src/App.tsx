@@ -20,7 +20,8 @@ import {
   Settings,
   FileText,
   Hash,
-  Lock
+  Lock,
+  LogOut
 } from 'lucide-react';
 import { Tenant, Role, EntryPoint, Pipeline, Deal, Workflow as WorkflowType, IntegrationProvider, Contact, Appointment, InboundLog, StageAction, WorkflowNode } from './types';
 
@@ -481,6 +482,14 @@ export default function App() {
           setCurrentRole(role);
           setAuthenticatedEmail(email);
           setIsAuthenticated(true);
+          // Set a default view the role has access to
+          if (role === 'master_admin') {
+            setCurrentView('master_ceo');
+          } else if (role === 'agent') {
+            setCurrentView('inbox');
+          } else {
+            setCurrentView('dashboard');
+          }
         }}
         userEmailMetadata="sb4fun88@gmail.com"
       />
@@ -643,57 +652,50 @@ export default function App() {
           </span>
         </form>
 
-        {/* Global Multi-tenant & Roles simulator switchers */}
+        {/* Global Multi-tenant & Roles read-only indicators */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Tenant Switcher */}
-          <div className="flex items-center gap-1.5 bg-slate-100/80 border border-slate-200 py-1.5 px-3 rounded-xl text-xs">
-            <Building2 className="w-3.5 h-3.5 text-slate-500" />
-            <span className="text-slate-500">Inquilino (Tenant):</span>
-            <select
-              value={currentTenantId}
-              onChange={(e) => setCurrentTenantId(e.target.value)}
-              className="bg-transparent text-slate-800 font-bold focus:outline-none cursor-pointer border-none"
-            >
-              {tenants.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
+          {/* Tenant Read-only Badge */}
+          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 py-1.5 px-3 rounded-xl text-xs">
+            <Building2 className="w-3.5 h-3.5 text-slate-400" />
+            <span className="text-slate-500 font-medium">Inquilino:</span>
+            <span className="text-slate-800 font-bold">
+              {currentRole === 'master_admin' ? 'OmniLead Global' : currentTenant.name}
+            </span>
           </div>
 
-          {/* User Role Switcher */}
-          <div className="flex items-center gap-1.5 bg-slate-100/80 border border-slate-200 py-1.5 px-3 rounded-xl text-xs">
-            <UserCheck className="w-3.5 h-3.5 text-slate-500" />
-            <span className="text-slate-500">Nível (Role):</span>
-            <select
-              value={currentRole}
-              onChange={(e) => setCurrentRole(e.target.value as Role)}
-              className="bg-transparent text-slate-800 font-bold focus:outline-none cursor-pointer border-none"
-            >
-              {roles.map((r) => (
-                <option key={r} value={r}>
-                  {r === 'master_admin' ? 'CEO MASTER ADMIN' : r === 'admin' ? 'ADMINISTRADOR' : r === 'manager' ? 'GERENTE' : 'AGENTE'}
-                </option>
-              ))}
-            </select>
+          {/* User Role Read-only Badge */}
+          <div className={`flex items-center gap-1.5 border py-1.5 px-3 rounded-xl text-xs font-semibold ${
+            currentRole === 'master_admin'
+              ? 'bg-violet-50 border-violet-200 text-violet-700'
+              : currentRole === 'admin'
+              ? 'bg-amber-50 border-amber-200 text-amber-700'
+              : currentRole === 'manager'
+              ? 'bg-blue-50 border-blue-200 text-blue-700'
+              : 'bg-emerald-50 border-emerald-200 text-emerald-700'
+          }`}>
+            <UserCheck className="w-3.5 h-3.5" />
+            <span>Nível:</span>
+            <span className="uppercase font-bold">
+              {currentRole === 'master_admin' ? 'CEO MASTER ADMIN' : currentRole === 'admin' ? 'ADMINISTRADOR' : currentRole === 'manager' ? 'GERENTE' : 'AGENTE'}
+            </span>
           </div>
 
           {/* Active User & Logout */}
-          <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
+          <div className="flex items-center gap-2.5 border-l border-slate-200 pl-3">
             <div className="hidden lg:flex flex-col text-right">
               <span className="text-[11px] font-bold text-slate-800 max-w-[150px] truncate" title={authenticatedEmail}>{authenticatedEmail}</span>
-              <span className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-wider">Sessão Ativa</span>
+              <span className="text-[9px] font-mono text-slate-400 font-bold uppercase tracking-wider">Acesso Autenticado</span>
             </div>
             <button
               onClick={() => {
                 setIsAuthenticated(false);
                 setSearchQuery('');
               }}
-              title="Sair do Sistema (Bloquear)"
-              className="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer flex items-center justify-center bg-slate-50 border border-slate-100"
+              title="Encerrar Sessão Segura (Logout)"
+              className="px-3 py-1.5 text-xs font-bold text-rose-600 hover:text-white hover:bg-rose-600 bg-rose-50 border border-rose-150 rounded-xl transition-all duration-200 cursor-pointer flex items-center gap-1.5 shadow-xs"
             >
-              <Lock className="w-3.5 h-3.5" />
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sair</span>
             </button>
           </div>
         </div>
@@ -717,9 +719,11 @@ export default function App() {
             {/* Category 1: Painéis & Mensagens */}
             <div className="space-y-1">
               <span className="text-[9px] text-slate-400 uppercase font-mono tracking-wider font-bold px-2.5">Painéis e Mensagens</span>
-              <button onClick={() => setCurrentView('dashboard')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'dashboard' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><LayoutDashboard className="w-4 h-4 shrink-0" />Painel Geral</span>
-              </button>
+              {currentRole !== 'agent' && (
+                <button onClick={() => setCurrentView('dashboard')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'dashboard' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                  <span className="flex items-center gap-2.5"><LayoutDashboard className="w-4 h-4 shrink-0" />Painel Geral</span>
+                </button>
+              )}
               <button onClick={() => setCurrentView('inbox')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'inbox' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
                 <span className="flex items-center gap-2.5"><MessageSquare className="w-4 h-4 shrink-0" />Caixa Unificada</span>
                 <span className={`px-1.5 py-0.5 rounded-full text-[9px] font-bold ${currentView === 'inbox' ? 'bg-amber-700 text-white' : 'bg-amber-100 text-amber-700'}`}>WPP</span>
@@ -730,86 +734,112 @@ export default function App() {
             </div>
 
             {/* Category 2: CRM & Clientes */}
-            <div className="space-y-1">
-              <span className="text-[9px] text-slate-400 uppercase font-mono tracking-wider font-bold px-2.5">CRM & Clientes</span>
-              <button onClick={() => setCurrentView('contacts')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'contacts' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Users className="w-4 h-4 shrink-0" />Clientes</span>
-              </button>
-              <button onClick={() => setCurrentView('crm')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'crm' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Columns className="w-4 h-4 shrink-0" />CRM Funis Kanban</span>
-              </button>
-              <button onClick={() => setCurrentView('comissoes_vendas')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'comissoes_vendas' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Coins className="w-4 h-4 shrink-0" />Comissões Vendas</span>
-              </button>
-            </div>
+            {currentRole !== 'master_admin' && (
+              <div className="space-y-1">
+                <span className="text-[9px] text-slate-400 uppercase font-mono tracking-wider font-bold px-2.5">CRM & Clientes</span>
+                <button onClick={() => setCurrentView('contacts')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'contacts' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                  <span className="flex items-center gap-2.5"><Users className="w-4 h-4 shrink-0" />Clientes</span>
+                </button>
+                <button onClick={() => setCurrentView('crm')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'crm' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                  <span className="flex items-center gap-2.5"><Columns className="w-4 h-4 shrink-0" />CRM Funis Kanban</span>
+                </button>
+                {currentRole !== 'agent' && (
+                  <button onClick={() => setCurrentView('comissoes_vendas')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'comissoes_vendas' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                    <span className="flex items-center gap-2.5"><Coins className="w-4 h-4 shrink-0" />Comissões Vendas</span>
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Category 3: Produção & Pátio */}
-            <div className="space-y-1">
-              <span className="text-[9px] text-slate-400 uppercase font-mono tracking-wider font-bold px-2.5">Produção & Pátio</span>
-              <button onClick={() => setCurrentView('requisicao_compra')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'requisicao_compra' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><ShoppingBag className="w-4 h-4 shrink-0" />Requisição Compra</span>
-              </button>
-              <button onClick={() => setCurrentView('romaneios')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'romaneios' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Truck className="w-4 h-4 shrink-0" />Romaneios</span>
-              </button>
-              <button onClick={() => setCurrentView('estoque')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'estoque' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Package className="w-4 h-4 shrink-0" />Estoque</span>
-              </button>
-            </div>
+            {(currentRole === 'admin' || currentRole === 'manager') && (
+              <div className="space-y-1">
+                <span className="text-[9px] text-slate-400 uppercase font-mono tracking-wider font-bold px-2.5">Produção & Pátio</span>
+                {currentRole === 'admin' && (
+                  <button onClick={() => setCurrentView('requisicao_compra')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'requisicao_compra' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                    <span className="flex items-center gap-2.5"><ShoppingBag className="w-4 h-4 shrink-0" />Requisição Compra</span>
+                  </button>
+                )}
+                <button onClick={() => setCurrentView('romaneios')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'romaneios' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                  <span className="flex items-center gap-2.5"><Truck className="w-4 h-4 shrink-0" />Romaneios</span>
+                </button>
+                <button onClick={() => setCurrentView('estoque')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'estoque' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                  <span className="flex items-center gap-2.5"><Package className="w-4 h-4 shrink-0" />Estoque</span>
+                </button>
+              </div>
+            )}
 
             {/* Category 4: Financeiro & Suporte */}
-            <div className="space-y-1">
-              <span className="text-[9px] text-slate-400 uppercase font-mono tracking-wider font-bold px-2.5">Financeiro & Suporte</span>
-              <button onClick={() => setCurrentView('financeiro_apagar')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'financeiro_apagar' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Receipt className="w-4 h-4 shrink-0" />Contas a Pagar</span>
-              </button>
-              <button onClick={() => setCurrentView('financeiro_areceber')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'financeiro_areceber' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Receipt className="w-4 h-4 shrink-0" />Contas a Receber</span>
-              </button>
-              <button onClick={() => setCurrentView('smartdesk')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'smartdesk' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Headphones className="w-4 h-4 shrink-0" />Smartdesk</span>
-              </button>
-            </div>
+            {currentRole === 'admin' && (
+              <div className="space-y-1">
+                <span className="text-[9px] text-slate-400 uppercase font-mono tracking-wider font-bold px-2.5">Financeiro & Suporte</span>
+                <button onClick={() => setCurrentView('financeiro_apagar')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'financeiro_apagar' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                  <span className="flex items-center gap-2.5"><Receipt className="w-4 h-4 shrink-0" />Contas a Pagar</span>
+                </button>
+                <button onClick={() => setCurrentView('financeiro_areceber')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'financeiro_areceber' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                  <span className="flex items-center gap-2.5"><Receipt className="w-4 h-4 shrink-0" />Contas a Receber</span>
+                </button>
+                <button onClick={() => setCurrentView('smartdesk')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'smartdesk' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                  <span className="flex items-center gap-2.5"><Headphones className="w-4 h-4 shrink-0" />Smartdesk</span>
+                </button>
+              </div>
+            )}
 
             {/* Category 5: Configs & Histórico */}
-            <div className="space-y-1">
-              <span className="text-[9px] text-slate-400 uppercase font-mono tracking-wider font-bold px-2.5">Configs & Histórico</span>
-              <button onClick={() => setCurrentView('cadastros')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'cadastros' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Settings className="w-4 h-4 shrink-0" />Cadastros Gerais</span>
-              </button>
-              <button onClick={() => setCurrentView('historico_romaneios')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'historico_romaneios' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><FileText className="w-4 h-4 shrink-0" />Histórico Romaneios</span>
-              </button>
-              <button onClick={() => setCurrentView('historico_ordens')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'historico_ordens' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><FileText className="w-4 h-4 shrink-0" />Histórico Compras</span>
-              </button>
-              <button onClick={() => setCurrentView('contador_romaneio')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'contador_romaneio' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Hash className="w-4 h-4 shrink-0" />Contador Romaneio</span>
-              </button>
-              <button onClick={() => setCurrentView('contador_ordem')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'contador_ordem' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Hash className="w-4 h-4 shrink-0" />Contador Compra</span>
-              </button>
-              <button onClick={() => setCurrentView('acesso_usuario')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'acesso_usuario' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Lock className="w-4 h-4 shrink-0" />Acesso: Usuário</span>
-              </button>
-            </div>
+            {currentRole !== 'agent' && (
+              <div className="space-y-1">
+                <span className="text-[9px] text-slate-400 uppercase font-mono tracking-wider font-bold px-2.5">Configs & Histórico</span>
+                {currentRole !== 'master_admin' && (
+                  <button onClick={() => setCurrentView('cadastros')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'cadastros' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                    <span className="flex items-center gap-2.5"><Settings className="w-4 h-4 shrink-0" />Cadastros Gerais</span>
+                  </button>
+                )}
+                {currentRole !== 'master_admin' && (
+                  <button onClick={() => setCurrentView('historico_romaneios')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'historico_romaneios' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                    <span className="flex items-center gap-2.5"><FileText className="w-4 h-4 shrink-0" />Histórico Romaneios</span>
+                  </button>
+                )}
+                {currentRole === 'admin' && (
+                  <button onClick={() => setCurrentView('historico_ordens')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'historico_ordens' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                    <span className="flex items-center gap-2.5"><FileText className="w-4 h-4 shrink-0" />Histórico Compras</span>
+                  </button>
+                )}
+                {currentRole !== 'master_admin' && (
+                  <button onClick={() => setCurrentView('contador_romaneio')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'contador_romaneio' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                    <span className="flex items-center gap-2.5"><Hash className="w-4 h-4 shrink-0" />Contador Romaneio</span>
+                  </button>
+                )}
+                {currentRole === 'admin' && (
+                  <button onClick={() => setCurrentView('contador_ordem')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'contador_ordem' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                    <span className="flex items-center gap-2.5"><Hash className="w-4 h-4 shrink-0" />Contador Compra</span>
+                  </button>
+                )}
+                {(currentRole === 'master_admin' || currentRole === 'admin') && (
+                  <button onClick={() => setCurrentView('acesso_usuario')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'acesso_usuario' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                    <span className="flex items-center gap-2.5"><Lock className="w-4 h-4 shrink-0" />Acesso: Usuário</span>
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Category 6: Developer Tools */}
-            <div className="space-y-1">
-              <span className="text-[9px] text-slate-400 uppercase font-mono tracking-wider font-bold px-2.5">Plataforma & Dev</span>
-              <button onClick={() => setCurrentView('workflows')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'workflows' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Workflow className="w-4 h-4 shrink-0" />Fluxos n8n/Zapier</span>
-              </button>
-              <button onClick={() => setCurrentView('integrations')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'integrations' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><GitFork className="w-4 h-4 shrink-0" />Integrações APIs</span>
-              </button>
-              <button onClick={() => setCurrentView('logs')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'logs' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><Terminal className="w-4 h-4 shrink-0" />Logs Webhooks</span>
-              </button>
-              <button onClick={() => setCurrentView('blueprint')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'blueprint' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
-                <span className="flex items-center gap-2.5"><BookOpen className="w-4 h-4 shrink-0" />Manual Arquitetura</span>
-              </button>
-            </div>
+            {(currentRole === 'master_admin' || currentRole === 'admin') && (
+              <div className="space-y-1">
+                <span className="text-[9px] text-slate-400 uppercase font-mono tracking-wider font-bold px-2.5">Plataforma & Dev</span>
+                <button onClick={() => setCurrentView('workflows')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'workflows' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                  <span className="flex items-center gap-2.5"><Workflow className="w-4 h-4 shrink-0" />Fluxos n8n/Zapier</span>
+                </button>
+                <button onClick={() => setCurrentView('integrations')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'integrations' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                  <span className="flex items-center gap-2.5"><GitFork className="w-4 h-4 shrink-0" />Integrações APIs</span>
+                </button>
+                <button onClick={() => setCurrentView('logs')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'logs' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                  <span className="flex items-center gap-2.5"><Terminal className="w-4 h-4 shrink-0" />Logs Webhooks</span>
+                </button>
+                <button onClick={() => setCurrentView('blueprint')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'blueprint' ? 'bg-amber-600 text-white shadow-xs font-semibold' : 'text-slate-600 hover:bg-slate-100'}`}>
+                  <span className="flex items-center gap-2.5"><BookOpen className="w-4 h-4 shrink-0" />Manual Arquitetura</span>
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Persistent container system diagnostic footer */}
