@@ -23,8 +23,8 @@ export default function DashboardView({ currentTenant }: DashboardViewProps) {
 
   const recentEvents = [
     { id: '1', source: 'Entrada de WhatsApp', status: 'success', time: '1 min atrás', desc: 'Mensagem de +55 11 99876-1234 correspondeu ao onboarding de leads' },
-    { id: '2', source: 'Supabase Auth Gateway', status: 'success', time: '5 mins atrás', desc: 'Novo usuário cadastrado e disparado via gatilho de autenticação do Supabase' },
-    { id: '3', source: 'Webhook da Vercel', status: 'success', time: '12 mins atrás', desc: 'Deploy em produção concluído com sucesso e limpa-logs acionado' },
+    { id: '2', source: 'Autenticação do Usuário', status: 'success', time: '5 mins atrás', desc: 'Sessão ativa de agente autenticada com sucesso por autenticação MFA' },
+    { id: '3', source: 'Gatilho de Automação', status: 'success', time: '12 mins atrás', desc: 'Integração de e-mail enviada e recebida com sucesso via SMTP seguro' },
     { id: '4', source: 'E-mail Recebido', status: 'success', time: '20 mins atrás', desc: 'Dúvida de jorge@woodco.com encaminhada ao funil VIP do CRM' },
     { id: '5', source: 'Bot do Telegram', status: 'failed', time: '30 mins atrás', desc: 'Tempo limite de execução no nó de condição: verificação de orçamento' },
   ];
@@ -41,12 +41,12 @@ export default function DashboardView({ currentTenant }: DashboardViewProps) {
             </span>
             <h1 className="text-2xl font-black text-white mt-2 tracking-tight">Painel de Controle de Inteligência Operacional</h1>
             <p className="text-slate-400 text-xs mt-1">
-              Indicadores consolidados em tempo real de canais de atendimento, funis de negócios ativos e logs de automação do Supabase + Vercel.
+              Indicadores consolidados em tempo real de canais de atendimento, funis de negócios ativos e logs de automação do sistema.
             </p>
           </div>
           <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl backdrop-blur-md text-xs text-white border border-white/10 font-mono font-semibold">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            AMBIENTE: SUPABASE + VERCEL (ATIVO)
+            STATUS: SISTEMA OPERANTE
           </div>
         </div>
       </div>

@@ -116,14 +116,14 @@ export default function FinanceiroView({ initialSubView }: FinanceiroViewProps) 
     setEntityName('');
     setValue(5000);
 
-    addLog(`INSERT INTO financial_ledger (id, type, value, entity) VALUES ('${newInvoice.id}', '${activeTab}', ${value}, '${entityName}') - Supabase OK`);
+    addLog(`Lançamento '${newInvoice.id}' cadastrado: ${entityName}, R$ ${value} - Registrado no banco`);
   };
 
   const markAsPaid = (id: string) => {
     setInvoices(prev =>
       prev.map(inv => (inv.id === id ? { ...inv, status: 'paid' } : inv))
     );
-    addLog(`UPDATE financial_ledger SET status = 'paid' WHERE id = '${id}'`);
+    addLog(`Lançamento '${id}' marcado como pago com sucesso`);
   };
 
   const filtered = invoices
@@ -198,7 +198,7 @@ export default function FinanceiroView({ initialSubView }: FinanceiroViewProps) 
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
           </div>
           <div className="font-mono text-[10px] text-slate-400 mt-2">
-            <div>API: Supabase + Asaas API / Open Finance</div>
+            <div>API: Gateway de Cobrança / Open Finance</div>
             <div className="text-slate-300">NFe Auto-Sincronizada</div>
           </div>
         </div>
@@ -301,7 +301,7 @@ export default function FinanceiroView({ initialSubView }: FinanceiroViewProps) 
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-slate-200">
             <h3 className="text-[10px] font-extrabold uppercase font-mono text-amber-500 tracking-wider flex items-center gap-1.5 mb-2.5">
               <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-              Gateway Supabase Financial Logs
+              Gateway de Eventos Financeiros
             </h3>
             <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[9px] text-slate-400 space-y-1.5 min-h-[140px] max-h-[220px] overflow-y-auto">
               <div>-- Auditoria Realtime Open Finance --</div>

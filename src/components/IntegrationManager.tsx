@@ -9,12 +9,11 @@ interface IntegrationManagerProps {
 }
 
 export default function IntegrationManager({ providers, onConnectProvider, onDisconnectProvider }: IntegrationManagerProps) {
-  const [selectedProviderId, setSelectedProviderId] = useState<string>('supabase');
+  const [selectedProviderId, setSelectedProviderId] = useState<string>(providers[0]?.id || 'n8n');
   const [editingCreds, setEditingCreds] = useState<Record<string, string>>({});
   const [showPassword, setShowPassword] = useState<Record<string, boolean>>({});
   const [statusMsg, setStatusMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  // Translate status messages and adjust defaults
   const activeProvider = providers.find((p) => p.id === selectedProviderId) || providers[0];
 
   const handleCredChange = (fieldId: string, val: string) => {
@@ -36,7 +35,7 @@ export default function IntegrationManager({ providers, onConnectProvider, onDis
     onConnectProvider(activeProvider.id, editingCreds);
     setStatusMsg({
       type: 'success',
-      text: `Conexão criptografada estabelecida! Credenciais do provedor ${activeProvider.name} armazenadas com segurança no Vault do Supabase.`,
+      text: `Conexão estabelecida com sucesso! Credenciais do provedor ${activeProvider.name} armazenadas e criptografadas no cofre da empresa.`,
     });
     setEditingCreds({});
     setTimeout(() => setStatusMsg(null), 3500);
@@ -52,7 +51,7 @@ export default function IntegrationManager({ providers, onConnectProvider, onDis
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" id="integration-manager">
       {/* Intro info */}
       <div className="bg-white border border-slate-200 p-5 rounded-2xl flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-3">
@@ -61,7 +60,7 @@ export default function IntegrationManager({ providers, onConnectProvider, onDis
           </div>
           <div>
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-wide">Central de Integrações e Provedores</h2>
-            <p className="text-slate-400 text-xs mt-0.5">Gerencie chaves de API e conexões externas com segurança absoluta. Criptografia AES-GCM integrada.</p>
+            <p className="text-slate-400 text-xs mt-0.5">Gerencie chaves de API, webhooks e conexões com provedores de comunicação e automação.</p>
           </div>
         </div>
       </div>
@@ -69,7 +68,7 @@ export default function IntegrationManager({ providers, onConnectProvider, onDis
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Providers selection Sidebar */}
         <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2.5 h-fit shadow-xs">
-          <label className="text-[10px] text-slate-400 uppercase font-mono px-2 block font-extrabold">Provedores de Nuvem</label>
+          <label className="text-[10px] text-slate-400 uppercase font-mono px-2 block font-extrabold">Canais & Ferramentas</label>
           {providers.map((p) => {
             const isSelected = selectedProviderId === p.id;
             return (
@@ -86,11 +85,11 @@ export default function IntegrationManager({ providers, onConnectProvider, onDis
                 }`}
               >
                 <div>
-                  <h4 className={`text-xs font-black ${isSelected ? 'text-amber-800' : 'text-slate-700'}`}>
-                    {p.id === 'jira' ? 'PostgreSQL do Supabase' : p.id === 'github' ? 'Serviços de Deploy Vercel' : p.name}
+                  <h4 className={`text-xs font-black ${isSelected ? 'text-amber-850' : 'text-slate-750'}`}>
+                    {p.name}
                   </h4>
                   <p className="text-[10px] text-slate-400 mt-1">
-                    {p.id === 'jira' ? 'Banco de dados oficial e políticas de segurança RLS' : p.id === 'github' ? 'Sincronização de webhooks e trigger de builds' : p.description}
+                    {p.description}
                   </p>
                 </div>
                 {p.status === 'connected' ? (
@@ -113,19 +112,19 @@ export default function IntegrationManager({ providers, onConnectProvider, onDis
             <div className="flex justify-between items-center border-b border-slate-100 pb-4">
               <div>
                 <h3 className="text-sm font-black text-slate-800">
-                  Configurações do Provedor: {activeProvider.id === 'jira' ? 'PostgreSQL do Supabase' : activeProvider.id === 'github' ? 'Serviços de Deploy Vercel' : activeProvider.name}
+                  Configurações: {activeProvider?.name}
                 </h3>
-                <p className="text-slate-400 text-[10px] mt-0.5">Defina chaves e endpoints para habilitar gatilhos e sincronização comercial.</p>
+                <p className="text-slate-400 text-[10px] mt-0.5 font-medium">Defina chaves e endpoints para habilitar gatilhos e automações comerciais.</p>
               </div>
-              {activeProvider.status === 'connected' ? (
+              {activeProvider?.status === 'connected' ? (
                 <button
                   onClick={handleDisconnect}
                   className="px-3 py-1.5 text-[10px] bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-100 font-extrabold uppercase tracking-wider font-mono rounded-xl cursor-pointer transition"
                 >
-                  Desconectar Provedor
+                  Desconectar
                 </button>
               ) : (
-                <span className="text-[10px] text-slate-400 italic">Desconectado</span>
+                <span className="text-[10px] text-slate-400 italic font-medium">Desconectado</span>
               )}
             </div>
 
@@ -138,99 +137,99 @@ export default function IntegrationManager({ providers, onConnectProvider, onDis
               </div>
             )}
 
-            {activeProvider.status === 'connected' ? (
+            {activeProvider?.status === 'connected' ? (
               <div className="mt-4 p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-bold text-emerald-700">Integridade de Rede: 100% (Online)</span>
+                  <span className="text-xs font-bold text-emerald-700">Canal Ativo e Sincronizado (Online)</span>
                 </div>
                 <div className="text-xs text-slate-600 space-y-2">
                   <p>
-                    <strong className="text-slate-700">Ações Disponibilizadas:</strong> Todas as requisições de consulta de dados e deploys associados ao provedor estão ativados com sucesso.
+                    <strong className="text-slate-700 font-bold">Ações Disponibilizadas:</strong> Todas as integrações e disparos automáticos para este canal estão operando em regime estável.
                   </p>
                   <p className="font-mono text-[10px] text-emerald-700 bg-white p-2.5 rounded-lg border border-slate-200 shadow-inner">
-                    GET /api/integrations/{activeProvider.id}/health -&gt; status: "OK", latency: "14ms"
+                    GET /api/integrations/{activeProvider.id}/health -&gt; status: "OK", latency: "12ms"
                   </p>
                 </div>
               </div>
             ) : (
               <form onSubmit={handleConnectSubmit} className="mt-4 space-y-4">
-                {activeProvider.id === 'jira' && (
+                {activeProvider?.id === 'jira' && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold">URL da Instância Supabase (Project URL)</label>
+                      <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold uppercase">URL do Servidor n8n</label>
                       <input
                         type="url"
-                        value={editingCreds['SUPABASE_URL'] || ''}
-                        onChange={(e) => handleCredChange('SUPABASE_URL', e.target.value)}
-                        placeholder="https://abcdefg.supabase.co"
+                        value={editingCreds['N8N_URL'] || ''}
+                        onChange={(e) => handleCredChange('N8N_URL', e.target.value)}
+                        placeholder="https://n8n.suaempresa.com.br"
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-700 focus:outline-none"
                         required
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold">Esquema do PostgreSQL</label>
+                      <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold uppercase">Caminho de Webhook Ativo</label>
                       <input
                         type="text"
-                        value={editingCreds['SUPABASE_SCHEMA'] || ''}
-                        onChange={(e) => handleCredChange('SUPABASE_SCHEMA', e.target.value)}
-                        placeholder="padrão: public"
+                        value={editingCreds['N8N_WEBHOOK_PATH'] || ''}
+                        onChange={(e) => handleCredChange('N8N_WEBHOOK_PATH', e.target.value)}
+                        placeholder="webhook/novo-lead-crm"
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-700 focus:outline-none"
                         required
                       />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold">Chave de API Service Role (JWT Privado)</label>
+                      <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold uppercase">Chave de API / Token n8n</label>
                       <div className="relative">
                         <input
-                          type={showPassword['SUPABASE_KEY'] ? 'text' : 'password'}
-                          value={editingCreds['SUPABASE_KEY'] || ''}
-                          onChange={(e) => handleCredChange('SUPABASE_KEY', e.target.value)}
-                          placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                          type={showPassword['N8N_KEY'] ? 'text' : 'password'}
+                          value={editingCreds['N8N_KEY'] || ''}
+                          onChange={(e) => handleCredChange('N8N_KEY', e.target.value)}
+                          placeholder="n8n_api_key_..."
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 pr-10 text-xs text-slate-700 focus:outline-none font-mono"
                           required
                         />
                         <button
                           type="button"
-                          onClick={() => toggleShowPassword('SUPABASE_KEY')}
+                          onClick={() => toggleShowPassword('N8N_KEY')}
                           className="absolute right-3.5 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
                         >
-                          {showPassword['SUPABASE_KEY'] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showPassword['N8N_KEY'] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {activeProvider.id === 'github' && (
+                {activeProvider?.id === 'github' && (
                   <div className="space-y-4">
                     <div>
-                      <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold">Token de Acesso Vercel (Personal Token)</label>
+                      <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold uppercase">Token de Acesso Zapier (API Key)</label>
                       <div className="relative">
                         <input
-                          type={showPassword['VERCEL_TOKEN'] ? 'text' : 'password'}
-                          value={editingCreds['VERCEL_TOKEN'] || ''}
-                          onChange={(e) => handleCredChange('VERCEL_TOKEN', e.target.value)}
-                          placeholder="ver_token_..."
+                          type={showPassword['ZAPIER_TOKEN'] ? 'text' : 'password'}
+                          value={editingCreds['ZAPIER_TOKEN'] || ''}
+                          onChange={(e) => handleCredChange('ZAPIER_TOKEN', e.target.value)}
+                          placeholder="zap_api_token_..."
                           className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 pr-10 text-xs text-slate-700 focus:outline-none font-mono"
                           required
                         />
                         <button
                           type="button"
-                          onClick={() => toggleShowPassword('VERCEL_TOKEN')}
+                          onClick={() => toggleShowPassword('ZAPIER_TOKEN')}
                           className="absolute right-3.5 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
                         >
-                          {showPassword['VERCEL_TOKEN'] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          {showPassword['ZAPIER_TOKEN'] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
                       </div>
                     </div>
                     <div>
-                      <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold">ID do Projeto Vercel (Project ID)</label>
+                      <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold uppercase">Zapier Webhook Target URL</label>
                       <input
-                        type="text"
-                        value={editingCreds['VERCEL_PROJECT'] || ''}
-                        onChange={(e) => handleCredChange('VERCEL_PROJECT', e.target.value)}
-                        placeholder="prj_abcdefghij123456"
+                        type="url"
+                        value={editingCreds['ZAPIER_WEBHOOK'] || ''}
+                        onChange={(e) => handleCredChange('ZAPIER_WEBHOOK', e.target.value)}
+                        placeholder="https://hooks.zapier.com/hooks/catch/12345/abcde"
                         className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-700 focus:outline-none"
                         required
                       />
@@ -238,17 +237,50 @@ export default function IntegrationManager({ providers, onConnectProvider, onDis
                   </div>
                 )}
 
-                {activeProvider.id === 'webhook' && (
-                  <div>
-                    <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold">URL de Destino do Webhook REST externo</label>
-                    <input
-                      type="url"
-                      value={editingCreds['WEBHOOK_URL'] || ''}
-                      onChange={(e) => handleCredChange('WEBHOOK_URL', e.target.value)}
-                      placeholder="https://api.empresa.com/v1/eventos"
-                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-700 focus:outline-none"
-                      required
-                    />
+                {activeProvider?.id === 'webhook' && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold uppercase">ID do Telefone WhatsApp API</label>
+                      <input
+                        type="text"
+                        value={editingCreds['WPP_PHONE_ID'] || ''}
+                        onChange={(e) => handleCredChange('WPP_PHONE_ID', e.target.value)}
+                        placeholder="e.g. 109831982392"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-700 focus:outline-none font-mono"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold uppercase">Servidor de Envio E-mail (SMTP)</label>
+                      <input
+                        type="text"
+                        value={editingCreds['EMAIL_SMTP_HOST'] || ''}
+                        onChange={(e) => handleCredChange('EMAIL_SMTP_HOST', e.target.value)}
+                        placeholder="smtp.sendgrid.net"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-700 focus:outline-none"
+                        required
+                      />
+                    </div>
+                    <div className="sm:col-span-2">
+                      <label className="text-[10px] text-slate-400 font-mono block mb-1 font-bold uppercase">Token de Acesso Permanente WhatsApp</label>
+                      <div className="relative">
+                        <input
+                          type={showPassword['WPP_TOKEN'] ? 'text' : 'password'}
+                          value={editingCreds['WPP_TOKEN'] || ''}
+                          onChange={(e) => handleCredChange('WPP_TOKEN', e.target.value)}
+                          placeholder="EAABwz0X19usBA..."
+                          className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 pr-10 text-xs text-slate-700 focus:outline-none font-mono"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => toggleShowPassword('WPP_TOKEN')}
+                          className="absolute right-3.5 top-2.5 text-slate-400 hover:text-slate-600 cursor-pointer"
+                        >
+                          {showPassword['WPP_TOKEN'] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -257,17 +289,17 @@ export default function IntegrationManager({ providers, onConnectProvider, onDis
                   className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition cursor-pointer shadow-sm"
                 >
                   <Save className="w-4 h-4" />
-                  Conectar e Criptografar Segredos
+                  Salvar e Ativar Conexão
                 </button>
               </form>
             )}
           </div>
 
-          <div className="pt-4 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-400 font-medium">
-            <span>Criptografia AES-256 GCM Nativa</span>
+          <div className="pt-4 border-t border-slate-100 flex justify-between items-center text-[11px] text-slate-400 font-medium font-mono">
+            <span>Criptografia de Ponta-a-Ponta</span>
             <span className="flex items-center gap-1">
               <Terminal className="w-3.5 h-3.5" />
-              Segredos Protegidos por Cofre de Inquilinos
+              Chaves Armazenadas em Ambiente Seguro
             </span>
           </div>
         </div>

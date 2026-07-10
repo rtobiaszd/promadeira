@@ -90,7 +90,7 @@ export default function EstoqueView() {
 
     setProducts([newProd, ...products]);
     setShowAddModal(false);
-    addLog(`INSERT INTO stock_products (name, category, volume_m3) VALUES ('${name}', '${category}', ${volumeM3}) - Supabase RLS OK`);
+    addLog(`Produto ${name} (${category}) cadastrado: ${volumeM3} m³ - Salvo no banco`);
   };
 
   const handleQuickAdjust = (id: string, deltaM3: number) => {
@@ -98,7 +98,7 @@ export default function EstoqueView() {
       prev.map(p => {
         if (p.id === id) {
           const newVal = Math.max(0, p.volumeM3 + deltaM3);
-          addLog(`UPDATE stock_products SET volume_m3 = ${newVal.toFixed(2)} WHERE id = '${id}'`);
+          addLog(`Volume do lote ${id} ajustado para ${newVal.toFixed(2)} m³ - Registrado`);
           return { ...p, volumeM3: newVal };
         }
         return p;

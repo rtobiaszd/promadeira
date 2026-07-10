@@ -111,7 +111,7 @@ export default function RomaneiosView() {
     setDriverName('');
     setWeightKg(15000);
 
-    addLog(`INSERT INTO wood_manifests (id, client, driver) VALUES ('${newRomaneio.id}', '${clientName}', '${driverName}') - Supabase OK`);
+    addLog(`Romaneio '${newRomaneio.id}' cadastrado: Cliente ${clientName}, Motorista ${driverName} - Registro em dia`);
   };
 
   const handleStatusChange = (id: string, nextStatus: 'draft' | 'loading' | 'transit' | 'delivered') => {
@@ -290,7 +290,7 @@ export default function RomaneiosView() {
           )}
 
           <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-3 shadow-xs">
-            <h4 className="text-[10px] font-extrabold uppercase font-mono text-slate-400 tracking-wider">Últimos Lançamentos Supabase</h4>
+            <h4 className="text-[10px] font-extrabold uppercase font-mono text-slate-400 tracking-wider">Histórico de Alterações</h4>
             <div className="space-y-1.5 font-mono text-[9px] text-slate-500 max-h-[110px] overflow-y-auto">
               {dbLogs.map((log, i) => (
                 <div key={i} className="border-l border-amber-500 pl-1.5 truncate">

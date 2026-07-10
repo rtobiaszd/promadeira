@@ -21,7 +21,7 @@ export default function LogIngestionView({ logs, onTriggerLogWorkflow }: LogInge
       2
     )
   );
-  const [customSource, setCustomSource] = useState<string>('Monitoramento Vercel Webhook');
+  const [customSource, setCustomSource] = useState<string>('Monitoramento Alerta Servidor');
   const [simulatedLogs, setSimulatedLogs] = useState<InboundLog[]>(logs);
   const [activeLogTrace, setActiveLogTrace] = useState<string[]>([]);
   const [isTracerRunning, setIsTracerRunning] = useState(false);
@@ -44,7 +44,7 @@ export default function LogIngestionView({ logs, onTriggerLogWorkflow }: LogInge
 
       setActiveLogTrace([
         '[INFORMAÇÃO] Endpoint de Ingestão recebeu requisição POST /api/events',
-        '[SUCESSO] Payload validado com sucesso conforme norma RFC-8259 JSON. Registrado no Supabase.'
+        '[SUCESSO] Payload validado com sucesso conforme norma RFC-8259 JSON. Registrado no banco.'
       ]);
     } catch (e) {
       alert('Formato JSON inválido no editor de payload.');
@@ -55,22 +55,22 @@ export default function LogIngestionView({ logs, onTriggerLogWorkflow }: LogInge
     setIsTracerRunning(true);
     setActiveLogTrace([
       `[INGESTÃO] Buscando workflows ativos para o provedor "${log.source}"`,
-      '[SUPABASE] Buscando workflows correspondentes no banco: "webhook_received"',
+      '[SISTEMA] Buscando workflows correspondentes no banco: "webhook_received"',
     ]);
 
     setTimeout(() => {
       setActiveLogTrace((prev) => [
         ...prev,
         '[COMBINAÇÃO] Encontrada 1 regra de fluxo ativa correspondente: "Resolução Automática de Sobrecarga"',
-        '[MOTOR] Carregando mapa de nós JSON do banco Supabase...',
+        '[MOTOR] Carregando mapa de nós JSON do banco de dados...',
         '[PASSO 1] Verificando condição "Limite de Disco": uso_disco_porcento (92) > limite (90) -> VERDADEIRO',
       ]);
 
       setTimeout(() => {
         setActiveLogTrace((prev) => [
           ...prev,
-          '[PASSO 2] Disparando ação de aviso REST "Canal de Alertas" via Webhook Vercel -> Status 200 OK',
-          '[PASSO 3] Disparando script corretivo de backup e limpeza de logs no Supabase -> Status 201 Created',
+          '[PASSO 2] Disparando ação de aviso REST "Canal de Alertas" via Webhook de Integração -> Status 200 OK',
+          '[PASSO 3] Disparando script de limpeza de logs -> Status 201 Created',
           '[SUCESSO] Cadeia de execução de resolução finalizada com sucesso. Todos os nós verificados e concluídos.',
         ]);
         setIsTracerRunning(false);
@@ -141,7 +141,7 @@ export default function LogIngestionView({ logs, onTriggerLogWorkflow }: LogInge
         {/* Middle Column: Ingested Webhook Log Feed */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 flex flex-col h-[500px] shadow-xs">
           <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider font-mono border-b border-slate-100 pb-3 shrink-0">
-            Eventos Armazenados no Supabase
+            Eventos Armazenados do Sistema
           </h3>
 
           <div className="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1">

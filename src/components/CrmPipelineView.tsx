@@ -41,11 +41,11 @@ export default function CrmPipelineView({ pipelines, deals, onMoveDeal, onUpdate
       const logsToAppend = targetStage.automation.onEnterActions.map((act) => {
         let msg = '';
         if (act.type === 'send_message') {
-          msg = `[WhatsApp/Twilio] Mensagem enviada automaticamente para ${deal.contactName}: "${act.config.text}"`;
+          msg = `[WhatsApp/E-mail] Mensagem enviada automaticamente para ${deal.contactName}: "${act.config.text}"`;
         } else if (act.type === 'create_jira_issue') {
-          msg = `[Supabase Auth Integration] Sincronização realizada no banco PostgreSQL do Supabase para o lead "${deal.contactName}".`;
+          msg = `[Automação n8n] Fluxo de trabalho executado com sucesso no n8n para o lead "${deal.contactName}".`;
         } else if (act.type === 'call_webhook') {
-          msg = `[Vercel Webhook Deploy] POST enviado com sucesso para regenerar estáticos na Vercel: ${act.config.url}`;
+          msg = `[Gatilho Zapier] Evento HTTP POST enviado com sucesso para o Zapier: ${act.config.url}`;
         } else {
           msg = `[Motor de Atribuição] Lead atribuído automaticamente ao consultor comercial ativo.`;
         }
@@ -77,11 +77,11 @@ export default function CrmPipelineView({ pipelines, deals, onMoveDeal, onUpdate
   const addEditingAction = (type: 'send_message' | 'create_jira_issue' | 'call_webhook') => {
     let newAct: StageAction;
     if (type === 'send_message') {
-      newAct = { type: 'send_message', config: { text: 'Olá! Seu lead avançou de estágio em nosso CRM do Supabase.' } };
+      newAct = { type: 'send_message', config: { text: 'Olá! Seu lead avançou de estágio em nosso CRM.' } };
     } else if (type === 'create_jira_issue') {
-      newAct = { type: 'create_jira_issue', config: { summary: 'Sincronizar Lead com Supabase Auth', projectKey: 'SUBA' } };
+      newAct = { type: 'create_jira_issue', config: { summary: 'Gatilho n8n - Novo Lead Comercial', projectKey: 'SUBA' } };
     } else {
-      newAct = { type: 'call_webhook', config: { url: 'https://api.vercel.com/v1/integrations/deploy', method: 'POST' } };
+      newAct = { type: 'call_webhook', config: { url: 'https://hooks.zapier.com/hooks/catch/12345/abcde/', method: 'POST' } };
     }
     setEditingActions([...editingActions, newAct]);
   };
@@ -215,7 +215,7 @@ export default function CrmPipelineView({ pipelines, deals, onMoveDeal, onUpdate
               <h3 className="text-sm font-black text-slate-900 uppercase tracking-wide">
                 Configurar Automações ao Entrar no Estágio
               </h3>
-              <p className="text-slate-500 text-xs mt-0.5">Defina ações automáticas executadas instantaneamente no banco de dados do Supabase.</p>
+              <p className="text-slate-500 text-xs mt-0.5">Defina ações automáticas executadas instantaneamente nos canais integrados.</p>
               <div className="mt-2 py-1 px-3 bg-amber-50 text-amber-800 rounded-lg text-xs font-bold inline-block">
                 Estágio Selecionado: {activePipeline.stages.find((s) => s.id === activeStageSettingsId)?.name}
               </div>
@@ -231,7 +231,7 @@ export default function CrmPipelineView({ pipelines, deals, onMoveDeal, onUpdate
                     <div key={i} className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex justify-between items-start gap-3">
                       <div className="text-xs space-y-1.5 flex-1">
                         <span className="font-mono font-extrabold text-amber-700 text-[10px] bg-amber-50 border border-amber-200/50 px-2 py-0.5 rounded-full">
-                          {act.type === 'create_jira_issue' ? 'SUPABASE_SYNC' : act.type === 'call_webhook' ? 'VERCEL_WEBHOOK' : 'WHATSAPP_SEND'}
+                          {act.type === 'create_jira_issue' ? 'N8N_TRIGGER' : act.type === 'call_webhook' ? 'ZAPIER_WEBHOOK' : 'WHATSAPP_SEND'}
                         </span>
                         {act.type === 'send_message' && (
                           <input
@@ -295,14 +295,14 @@ export default function CrmPipelineView({ pipelines, deals, onMoveDeal, onUpdate
                   onClick={() => addEditingAction('create_jira_issue')}
                   className="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-xl font-bold cursor-pointer"
                 >
-                  + Supabase Sinc
+                  + Disparador n8n
                 </button>
                 <button
                   type="button"
                   onClick={() => addEditingAction('call_webhook')}
                   className="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 hover:bg-slate-100 text-slate-700 rounded-xl font-bold cursor-pointer"
                 >
-                  + Vercel Webhook
+                  + Disparador Zapier
                 </button>
               </div>
             </div>

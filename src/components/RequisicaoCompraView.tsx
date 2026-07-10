@@ -59,7 +59,7 @@ export default function RequisicaoCompraView() {
   const [supplier, setSupplier] = useState('');
   const [requester, setRequester] = useState('Gerente Carlos Souza');
 
-  // Supabase logging simulator
+  // Auditoria do Sistema
   const [apiLogs, setApiLogs] = useState<string[]>([]);
 
   const addLog = (msg: string) => {
@@ -92,14 +92,14 @@ export default function RequisicaoCompraView() {
     setVolumeM3(20);
     setUnitPrice(350);
 
-    addLog(`INSERT INTO purchase_requisitions (id, wood_type, volume) VALUES ('${newReq.id}', '${woodType}', ${volumeM3}) - Supabase OK`);
+    addLog(`Requisição de compra '${newReq.id}' criada com sucesso: ${woodType} - ${volumeM3} m³ - Armazenado no banco`);
   };
 
   const handleUpdateStatus = (id: string, newStatus: 'approved' | 'rejected') => {
     setRequisitions(prev =>
       prev.map(r => (r.id === id ? { ...r, status: newStatus } : r))
     );
-    addLog(`UPDATE purchase_requisitions SET status = '${newStatus}' WHERE id = '${id}' - Vercel Webhook Disparado`);
+    addLog(`Requisição de compra '${id}' atualizada para '${newStatus}' - Notificação enviada`);
   };
 
   const filtered = requisitions.filter(r =>
@@ -232,10 +232,10 @@ export default function RequisicaoCompraView() {
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-slate-200">
             <h3 className="text-[10px] font-extrabold uppercase font-mono text-amber-500 tracking-wider flex items-center gap-1.5 mb-3">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              Integração Supabase RLS logs
+              Histórico de Auditoria e Eventos
             </h3>
             <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[10px] text-slate-400 min-h-[140px] space-y-2 max-h-[220px] overflow-y-auto">
-              <div>-- Auditoria Realtime Vercel / Supabase DB --</div>
+              <div>-- Eventos em Tempo Real --</div>
               {apiLogs.map((log, idx) => (
                 <div key={idx} className="text-slate-300 border-l-2 border-amber-500 pl-2">
                   {log}

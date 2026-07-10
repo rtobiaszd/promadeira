@@ -82,14 +82,14 @@ export default function ComissoesVendasView() {
     setDealTitle('');
     setDealValue(10000);
 
-    addLog(`INSERT INTO commissions (representative, earned) VALUES ('${representative}', ${earned}) - Supabase RLS OK`);
+    addLog(`Comissão de ${representative} registrada: R$ ${earned.toFixed(2)} - Salvo no banco`);
   };
 
   const payAllPending = () => {
     setCommissions(prev =>
       prev.map(c => c.status === 'pending' || c.status === 'processing' ? { ...c, status: 'paid' } : c)
     );
-    addLog(`UPDATE commissions SET status = 'paid' WHERE status IN ('pending','processing') - Transação Vercel OK`);
+    addLog(`Lote de comissões pendentes atualizado para PAGO - Envio de comprovantes iniciado`);
   };
 
   const filtered = commissions.filter(c =>

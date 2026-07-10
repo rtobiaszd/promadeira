@@ -60,7 +60,7 @@ export default function ContactsView({ contacts, onAddContact }: ContactsViewPro
           </div>
           <div>
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-wide">Banco de Dados de Contatos CRM</h2>
-            <p className="text-slate-400 text-xs mt-0.5">Mantenha metadados estruturados e isolados de seus clientes com políticas RLS no Supabase.</p>
+            <p className="text-slate-400 text-xs mt-0.5">Mantenha metadados estruturados e isolados de seus clientes com total segurança e privacidade de dados.</p>
           </div>
         </div>
         <button

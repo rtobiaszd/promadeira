@@ -87,7 +87,7 @@ export default function HistoricoView({ initialSubView }: HistoricoViewProps) {
               {activeTab === 'romaneio' ? 'Histórico Geral: Romaneios Emitidos' : 'Histórico Geral: Ordens de Compra Efetuadas'}
             </h2>
             <p className="text-slate-400 text-xs mt-0.5 font-sans">
-              Histórico consolidado e imutável de movimentações fiscais e de pátio da ProMadeira, auditadas no Supabase.
+              Histórico consolidado e imutável de movimentações fiscais e de pátio da ProMadeira, auditadas com segurança no banco de dados da plataforma.
             </p>
           </div>
         </div>

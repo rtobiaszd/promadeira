@@ -80,14 +80,14 @@ export default function SmartdeskView() {
     setContactName('');
     setSubject('');
 
-    addLog(`INSERT INTO smartdesk_tickets (id, client, subject) VALUES ('${newTicket.id}', '${contactName}', '${subject}') - Supabase OK`);
+    addLog(`Ticket '${newTicket.id}' aberto para ${contactName}: '${subject}' - Registrado no banco`);
   };
 
   const handleAssignMe = (id: string) => {
     setTickets(prev =>
       prev.map(t => (t.id === id ? { ...t, agentName: 'Consultor ProMadeira (Você)', status: 'progress' } : t))
     );
-    addLog(`UPDATE smartdesk_tickets SET agent = 'Consultor' WHERE id = '${id}'`);
+    addLog(`Ticket '${id}' atribuído a você - Atendimento iniciado`);
   };
 
   const handleResolve = (id: string) => {
@@ -231,7 +231,7 @@ export default function SmartdeskView() {
           <div className="bg-white border border-slate-200 p-5 rounded-2xl space-y-2 text-xs">
             <h4 className="font-bold text-slate-800 uppercase tracking-wider font-mono">Automação de WhatsApp</h4>
             <p className="text-slate-400 text-[11px] leading-relaxed">
-              O chatbot em modo híbrido possui integração com o Smartdesk. Se um cliente clica na opção 'Suporte', o ticket é criado no Supabase em tempo real, gerando notificação para o atendente.
+              O chatbot em modo híbrido possui integração com o Smartdesk. Se um cliente clica na opção 'Suporte', o ticket é criado no sistema em tempo real, gerando notificação para o atendente.
             </p>
           </div>
         </div>

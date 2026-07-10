@@ -34,6 +34,7 @@ import CalendarScheduler from './components/CalendarScheduler';
 import ContactsView from './components/ContactsView';
 import LogIngestionView from './components/LogIngestionView';
 import SaaSBlueprintDoc from './components/SaaSBlueprintDoc';
+import MasterCEOView from './components/MasterCEOView';
 
 // New Views from Legacy Sidebar Navigation
 import RequisicaoCompraView from './components/RequisicaoCompraView';
@@ -72,22 +73,34 @@ export default function App() {
     | 'contador_romaneio'
     | 'contador_ordem'
     | 'acesso_usuario'
+    | 'master_ceo'
   >('dashboard');
 
-  // Search State for Supabase & Vercel
+  // Navigation Bar Search State
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
-  // Multi-tenant States
-  const tenants: Tenant[] = [
+  // Multi-tenant States (Editable by CEO)
+  const [tenants, setTenants] = useState<Tenant[]>([
     { id: 'tenant-1', name: 'ProMadeira Ltda', subdomain: 'promadeira' },
     { id: 'tenant-2', name: 'SmartData BI Solutions', subdomain: 'smartdatabi' },
-  ];
+  ]);
   const [currentTenantId, setCurrentTenantId] = useState<string>('tenant-1');
   const currentTenant = tenants.find((t) => t.id === currentTenantId) || tenants[0];
 
+  const handleAddTenant = (name: string, subdomain: string) => {
+    setTenants((prev) => [
+      ...prev,
+      {
+        id: `tenant-${Date.now()}`,
+        name,
+        subdomain,
+      },
+    ]);
+  };
+
   // User Roles Simulation States
-  const roles: Role[] = ['admin', 'manager', 'agent'];
+  const roles: Role[] = ['master_admin', 'admin', 'manager', 'agent'];
   const [currentRole, setCurrentRole] = useState<Role>('admin');
 
   // Unified channels EntryPoints State
@@ -159,7 +172,7 @@ export default function App() {
           order: 2,
           automation: {
             onEnterActions: [
-              { type: 'create_jira_issue', config: { summary: 'Sincronizar Lead com Supabase Auth', projectKey: 'SUBA' } },
+              { type: 'create_jira_issue', config: { summary: 'Sincronizar Lead com ERP Geral', projectKey: 'ERP' } },
             ],
             conditions: [],
           },
@@ -170,7 +183,7 @@ export default function App() {
           order: 3,
           automation: {
             onEnterActions: [
-              { type: 'call_webhook', config: { url: 'https://api.vercel.com/v1/integrations/deploy', method: 'POST' } },
+              { type: 'call_webhook', config: { url: 'https://api.empresa.com/v1/integrations/workflow', method: 'POST' } },
             ],
             conditions: [],
           },
@@ -270,28 +283,28 @@ export default function App() {
     },
   ]);
 
-  // Pluggable integration providers mapped around Supabase and Vercel
+  // Pluggable integration providers mapped around external services
   const [providers, setProviders] = useState<IntegrationProvider[]>([
     {
-      id: 'jira',
-      name: 'PostgreSQL do Supabase',
-      description: 'Sincronize contatos, gerencie Row Level Security (RLS) e salve metadados no banco.',
-      icon: 'database',
+      id: 'zapier',
+      name: 'Integração Zapier',
+      description: 'Conecte leads e envie webhooks para milhares de ferramentas através do Zapier.',
+      icon: 'zap',
       status: 'connected',
-      credentials: { SUPABASE_URL: 'https://promadeira.supabase.co', SUPABASE_SCHEMA: 'public' },
+      credentials: { ZAPIER_WEBHOOK_URL: 'https://hooks.zapier.com/hooks/catch/...' },
       supportedActions: [
-        { id: 'create_issue', name: 'Sincronizar Lead', fields: [{ id: 'summary', label: 'Título do Registro', type: 'text' }] },
+        { id: 'call_webhook', name: 'Enviar Webhook Zapier', fields: [{ id: 'url', label: 'URL do Webhook', type: 'text' }] },
       ],
     },
     {
-      id: 'github',
-      name: 'Serviços de Deploy Vercel',
-      description: 'Dispare webhooks de deploy e atualizações de produção automáticas na Vercel.',
-      icon: 'server',
+      id: 'n8n',
+      name: 'Integração n8n',
+      description: 'Dispare fluxos de automação auto-hospedados ou na nuvem no n8n.',
+      icon: 'git-pull-request',
       status: 'not_connected',
       credentials: {},
       supportedActions: [
-        { id: 'trigger_workflow', name: 'Disparar Build Webhook', fields: [{ id: 'event_type', label: 'Nome do Evento', type: 'text' }] },
+        { id: 'trigger_workflow', name: 'Disparar Workflow n8n', fields: [{ id: 'workflow_id', label: 'ID do Fluxo', type: 'text' }] },
       ],
     },
     {
@@ -354,7 +367,7 @@ export default function App() {
     {
       id: 'log-1',
       timestamp: '10:42',
-      source: 'Monitoramento Vercel Webhook',
+      source: 'Monitoramento Alerta Servidor',
       payload: JSON.stringify({ type: 'alerta_infraestrutura', servidor: 'instancia-promadeira-producao', uso_disco_porcento: 92, telefone_administrador: '+55 11 99876-1234' }, null, 2),
       workflowStatus: 'success',
     },
@@ -436,7 +449,7 @@ export default function App() {
     setContacts([newC, ...contacts]);
   };
 
-  // Supabase Database Query Translation Simulation (Filters client-side state dynamically)
+  // Database Query Translation Simulation (Filters client-side state dynamically)
   const filteredSearchDeals = searchQuery.trim() === '' ? [] : deals.filter(d => 
     d.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
     d.contactName.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -493,13 +506,13 @@ export default function App() {
                 <div className="ripple-container"></div>
               </button>
 
-              {/* Floating Supabase & Vercel Real-time Results Overlay */}
+              {/* Floating Real-time Results Overlay */}
               {isSearchFocused && hasSearchQuery && (
                 <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-slate-900 border border-slate-800 text-slate-200 rounded-2xl p-4 shadow-2xl z-50 text-xs space-y-4">
                   <div className="flex justify-between items-center border-b border-slate-800 pb-2">
                     <span className="font-extrabold text-[10px] text-amber-500 uppercase tracking-wider font-mono flex items-center gap-1.5 font-bold">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      Resposta Vercel Serverless (Supabase DB)
+                      Resposta do Servidor (Banco de Dados)
                     </span>
                     <button 
                       type="button"
@@ -513,13 +526,13 @@ export default function App() {
                     </button>
                   </div>
 
-                  {/* Vercel logs and Supabase logs */}
+                  {/* API and Database logs */}
                   <div className="space-y-1.5 bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 font-mono text-[9px] text-slate-400">
                     <div className="text-emerald-400 font-bold">
                       GET /api/search?q={encodeURIComponent(searchQuery)} - 200 OK (18ms)
                     </div>
                     <div className="text-amber-400 mt-1">
-                      SELECT * FROM deals, contacts WHERE name ILIKE '%{searchQuery}%' OR title ILIKE '%{searchQuery}%';
+                      Filtro de busca aplicado nas coleções ativas de dados.
                     </div>
                     <div className="text-slate-500">
                       Registros encontrados: {filteredSearchDeals.length + filteredSearchContacts.length + filteredSearchWorkflows.length}
@@ -642,7 +655,7 @@ export default function App() {
             >
               {roles.map((r) => (
                 <option key={r} value={r}>
-                  {r === 'admin' ? 'ADMINISTRADOR' : r === 'manager' ? 'GERENTE' : 'AGENTE'}
+                  {r === 'master_admin' ? 'CEO MASTER ADMIN' : r === 'admin' ? 'ADMINISTRADOR' : r === 'manager' ? 'GERENTE' : 'AGENTE'}
                 </option>
               ))}
             </select>
@@ -655,6 +668,16 @@ export default function App() {
         {/* Left main vertical navigation */}
         <aside className="w-full md:w-64 border-r border-slate-200 bg-white p-4 flex flex-col justify-between space-y-4">
           <div className="space-y-4 max-h-[72vh] overflow-y-auto pr-1.5 custom-scrollbar">
+            {/* Category CEO Master Admin */}
+            {currentRole === 'master_admin' && (
+              <div className="space-y-1">
+                <span className="text-[9px] text-violet-600 uppercase font-mono tracking-wider font-bold px-2.5">Master CEO Admin</span>
+                <button onClick={() => setCurrentView('master_ceo')} className={`w-full flex items-center justify-between px-3 py-2 text-xs font-bold rounded-xl transition cursor-pointer ${currentView === 'master_ceo' ? 'bg-violet-600 text-white shadow-xs font-semibold' : 'text-violet-600 hover:bg-violet-50 bg-violet-50/10 border border-violet-100/50'}`}>
+                  <span className="flex items-center gap-2.5"><Building2 className="w-4 h-4 shrink-0" />Controle Multi-Tenant</span>
+                </button>
+              </div>
+            )}
+
             {/* Category 1: Painéis & Mensagens */}
             <div className="space-y-1">
               <span className="text-[9px] text-slate-400 uppercase font-mono tracking-wider font-bold px-2.5">Painéis e Mensagens</span>
@@ -804,6 +827,13 @@ export default function App() {
           {currentView === 'contacts' && <ContactsView contacts={contacts} onAddContact={handleAddContact} />}
           {currentView === 'logs' && <LogIngestionView logs={logs} onTriggerLogWorkflow={() => {}} />}
           {currentView === 'blueprint' && <SaaSBlueprintDoc />}
+          {currentView === 'master_ceo' && (
+            <MasterCEOView
+              tenants={tenants}
+              onAddTenant={handleAddTenant}
+              currentRole={currentRole}
+            />
+          )}
 
           {/* Legacy navigation views */}
           {currentView === 'requisicao_compra' && <RequisicaoCompraView />}

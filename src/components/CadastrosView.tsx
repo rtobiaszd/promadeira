@@ -107,7 +107,7 @@ export default function CadastrosView() {
       case 'comissoes': setComissoes([...comissoes, newItem]); break;
     }
 
-    addLog(`INSERT INTO meta_${activeCategory} (name) VALUES ('${newItemName}') - Supabase DB OK`);
+    addLog(`Registro '${newItemName}' adicionado com sucesso na categoria '${activeCategory}'`);
     setNewItemName('');
     setNewItemExtra('');
   };
@@ -246,7 +246,7 @@ export default function CadastrosView() {
           {/* Logs of Table updates */}
           <div className="bg-slate-900 border border-slate-800 p-4 rounded-2xl text-slate-200">
             <span className="text-[10px] font-extrabold uppercase font-mono text-amber-500 tracking-wider block mb-2">
-              Auditoria de Alterações Cadastrais (Supabase PostgreSQL Schema)
+              Auditoria de Alterações Cadastrais (Geral)
             </span>
             <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 font-mono text-[9px] text-slate-400 space-y-1.5 min-h-[90px]">
               <div>-- Auditoria Cadastros Globais --</div>

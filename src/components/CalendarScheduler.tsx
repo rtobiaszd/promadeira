@@ -27,7 +27,7 @@ export default function CalendarScheduler({ appointments, contacts }: CalendarSc
         {/* Appointments List Column */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5 md:col-span-2 space-y-4 shadow-xs">
           <h3 className="text-xs font-extrabold text-slate-800 uppercase tracking-wider font-mono border-b border-slate-100 pb-3">
-            Compromissos Agendados no Supabase
+            Compromissos Agendados no Sistema
           </h3>
 
           <div className="space-y-3.5 max-h-[440px] overflow-y-auto custom-scrollbar">

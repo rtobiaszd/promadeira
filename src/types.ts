@@ -4,7 +4,7 @@ export interface Tenant {
   subdomain: string;
 }
 
-export type Role = 'admin' | 'manager' | 'agent';
+export type Role = 'master_admin' | 'admin' | 'manager' | 'agent';
 
 export interface User {
   id: string;

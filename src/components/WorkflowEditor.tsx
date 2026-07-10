@@ -56,7 +56,7 @@ export default function WorkflowEditor({ workflows, onUpdateWorkflowNode }: Work
       let logMsg = '';
 
       if (node.type === 'trigger') {
-        logMsg = `[PASSO ${step}] 📥 [GATILHO] "${node.name}" recebeu payload do evento. Critérios correspondentes no Supabase: OK.`;
+        logMsg = `[PASSO ${step}] 📥 [GATILHO] "${node.name}" recebeu payload do evento. Critérios validados com sucesso.`;
         currentNodeId = node.nextId;
       } else if (node.type === 'ai') {
         logMsg = `[PASSO ${step}] 🧠 [MOTOR IA] "${node.name}" invocando processamento seguro do Gemini. Variáveis de intenções extraídas salvas no contexto comercial.`;
@@ -69,7 +69,7 @@ export default function WorkflowEditor({ workflows, onUpdateWorkflowNode }: Work
         logMsg = `[PASSO ${step}] ⚙️ [EXECUÇÃO DE AÇÃO] Disparando provedor de integração "${node.config.providerId || 'whatsapp'}": Envio efetuado com sucesso. Status de retorno: 200 OK.`;
         currentNodeId = node.nextId;
       } else if (node.type === 'delay') {
-        logMsg = `[PASSO ${step}] ⏳ [MOTOR DE TEMPO] Temporizador agendado no pg_cron do Supabase: Aguardando ${node.config.duration || '24'} horas antes de retomar o fluxo no pipeline.`;
+        logMsg = `[PASSO ${step}] ⏳ [MOTOR DE TEMPO] Temporizador agendado no motor: Aguardando ${node.config.duration || '24'} horas antes de retomar o fluxo no pipeline.`;
         currentNodeId = node.nextId;
       }
 
@@ -93,7 +93,7 @@ export default function WorkflowEditor({ workflows, onUpdateWorkflowNode }: Work
           </div>
           <div>
             <h2 className="text-sm font-black text-slate-900 uppercase tracking-wide">Orquestrador de Fluxos (Workflows)</h2>
-            <p className="text-slate-400 text-xs mt-0.5">Designer visual de nós lógicos orientados a eventos para Supabase e Vercel.</p>
+            <p className="text-slate-400 text-xs mt-0.5">Designer visual de nós lógicos orientados a eventos para múltiplos canais.</p>
           </div>
         </div>
         <div className="flex gap-2">
@@ -259,7 +259,7 @@ export default function WorkflowEditor({ workflows, onUpdateWorkflowNode }: Work
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2 px-3 text-xs text-slate-500 font-bold"
                   >
                     <option value="message_received">WhatsApp - Mensagem Recebida</option>
-                    <option value="webhook_received">Supabase Webhook - Payload Recebido</option>
+                    <option value="webhook_received">E-mail ou Webhook Externo - Payload Recebido</option>
                   </select>
                 </div>
               )}

@@ -38,7 +38,7 @@ export default function InboxView({ entryPoints, contacts, onAddAppointment, onM
       status: 'active',
       messages: [
         { id: 'm4', sender: 'contact', senderName: 'Elena Rostova', text: 'Olá, preciso checar o status do envio #84102', timestamp: '09:14', channel: 'telegram' },
-        { id: 'm5', sender: 'bot', senderName: 'OmniBot', text: 'Checando banco de dados Supabase... Seu pedido está em trânsito e chegará nesta sexta-feira!', timestamp: '09:15', channel: 'telegram' },
+        { id: 'm5', sender: 'bot', senderName: 'OmniBot', text: 'Checando banco de dados de pedidos... Seu pedido está em trânsito e chegará nesta sexta-feira!', timestamp: '09:15', channel: 'telegram' },
       ],
     },
     {
